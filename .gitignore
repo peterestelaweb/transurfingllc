@@ -6,6 +6,11 @@ package-lock.json
 .env
 .env.local
 
+# Firebase credentials - NUNCA COMMIT
+firebase-service-account.json
+firebase-*.json
+*.pem
+
 # Logs
 *.log
 npm-debug.log*
