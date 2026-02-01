@@ -851,7 +851,8 @@
                 </div>
 
                 <!-- Form -->
-                <form id="contactForm" class="space-y-6">
+                <form id="contactForm" class="space-y-6" name="contact-es" method="POST" data-netlify="true">
+                    <input type="hidden" name="form-name" value="contact-es" />
                     <div class="grid md:grid-cols-2 gap-6">
                         <div class="flex flex-col gap-2">
                             <label class="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Nombre
@@ -1083,7 +1084,7 @@
         const errorMessage = document.getElementById('errorMessage');
 
         // Email de destino (configurar)
-        const DESTINATION_EMAIL = "contact@transurfing.llc";
+        const DESTINATION_EMAIL = "peterestela@gmail.com";
 
         form.addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -1094,44 +1095,42 @@
             btnIcon.classList.add('hidden');
             btnSpinner.classList.remove('hidden');
 
-            const formData = {
-                nombre: document.getElementById('nombre').value,
-                email: document.getElementById('email').value,
-                website: document.getElementById('website').value,
-                revenue: document.getElementById('revenue').value,
-                mensaje: document.getElementById('mensaje').value,
-                fecha: new Date().toISOString(),
-                idioma: 'es'
-            };
+            const formData = new FormData(form);
 
             try {
-                // Intentar enviar a la API primero
-                const response = await fetch(API_ENDPOINT, {
+                // Intentar enviar a Netlify (AJAX)
+                const response = await fetch("/", {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams(formData).toString()
                 });
 
                 if (response.ok) {
                     showSuccess();
                 } else {
-                    throw new Error('API Error');
+                    throw new Error('Netlify submission failed');
                 }
             } catch (error) {
+                console.error('Error de formulario:', error);
+
                 // Fallback: abrir cliente de correo
-                const subject = encodeURIComponent(`Nueva Solicitud de ${formData.nombre} - Transurfing LLC`);
+                const nombre = formData.get('nombre');
+                const email = formData.get('email');
+                const website = formData.get('website') || 'No proporcionado';
+                const revenue = formData.get('revenue');
+                const mensaje = formData.get('mensaje');
+
+                const subject = encodeURIComponent(`Nueva Solicitud de ${nombre} - Transurfing LLC`);
                 const body = encodeURIComponent(
                     `NUEVA SOLICITUD DE CONTACTO\n` +
                     `═══════════════════════════════════════\n\n` +
-                    `📇 NOMBRE: ${formData.nombre}\n` +
-                    `📧 EMAIL: ${formData.email}\n` +
-                    `🌐 WEBSITE: ${formData.website || 'No proporcionado'}\n` +
-                    `💰 INGRESOS: ${formData.revenue}\n\n` +
-                    `💬 MENSAJE:\n${formData.mensaje}\n\n` +
+                    `📇 NOMBRE: ${nombre}\n` +
+                    `📧 EMAIL: ${email}\n` +
+                    `🌐 WEBSITE: ${website}\n` +
+                    `💰 INGRESOS: ${revenue}\n\n` +
+                    `💬 MENSAJE:\n${mensaje}\n\n` +
                     `═══════════════════════════════════════\n` +
-                    `Enviado desde Transurfing LLC\n` +
+                    `Enviado desde Transurfing LLC Web\n` +
                     `Fecha: ${new Date().toLocaleString('es-ES')}`
                 );
 
