@@ -29,3 +29,6 @@ old_versions/
 # Firebase
 .firebase/
 firebase-debug.log
+
+# Local Netlify folder
+.netlify

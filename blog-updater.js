@@ -20,7 +20,7 @@ const db = admin.firestore();
 const RSS_SOURCES = [
     {
         name: 'Forbes Business',
-        url: 'https://www.forbes.com/simple-data/business/feed/',
+        url: 'https://www.forbes.com/business/feed/',
         category: 'business',
         priority: 1
     },
@@ -31,12 +31,6 @@ const RSS_SOURCES = [
         priority: 1
     },
     {
-        name: 'Inc.com',
-        url: 'https://www.inc.com/rss.xml',
-        category: 'growth',
-        priority: 1
-    },
-    {
         name: 'Sales Hacker',
         url: 'https://blog.hubspot.com/sales/rss.xml',
         category: 'sales',
@@ -44,14 +38,14 @@ const RSS_SOURCES = [
     },
     {
         name: 'Harvard Business Review',
-        url: 'https://hbr.org/feed',
-        category: 'business',
+        url: 'https://hbr.org/topic/sales/rss',
+        category: 'sales',
         priority: 2
     },
     {
         name: 'Business Insider',
-        url: 'https://feeds.businessinsider.com/businessinsider',
-        category: 'sales',
+        url: 'https://feeds.businessinsider.com/custom/all',
+        category: 'business',
         priority: 3
     }
 ];
@@ -104,20 +98,70 @@ function isRelevantArticle(title, content, category) {
 }
 
 /**
- * Extrae imagen del contenido HTML
+ * Extrae imagen del contenido HTML o de los metadatos del item
  */
-function extractImage(content, category) {
-    // Imágenes por categoría como fallback
-    const categoryImages = {
-        'sales': 'https://images.unsplash.com/photo-1556761175-5973-eee8416?w=800',
-        'setting': 'https://images.unsplash.com/photo-1553877522-4ac694a47edc?w=800',
-        'closing': 'https://images.unsplash.com/photo-1542744173-8f7d549518d7?w=800',
-        'business': 'https://images.unsplash.com/photo-15070022139046-60dd975c5cd9?w=800',
-        'growth': 'https://images.unsplash.com/photo-1460925859341-9d8c6a5a5d8?w=800'
-    };
+function extractImage(item, content, category) {
+    // 1. Intentar obtener de metadatos comunes de RSS
+    // Manejar diferentes estructuras de media:content
+    const mediaContent = item['media:content'] || item.mediaContent;
 
-    // Buscar la primera imagen válida en el contenido
-    const imgRegex = /<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp))["'][^>]*>/gi;
+    if (mediaContent) {
+        // Caso 1: mediaContent es un objeto con $ (Forbes, algunos feeds)
+        if (mediaContent.$ && mediaContent.$.url) {
+            return validateImageUrl(mediaContent.$.url);
+        }
+        // Caso 2: mediaContent es un array de objetos
+        if (Array.isArray(mediaContent) && mediaContent.length > 0) {
+            if (mediaContent[0].$ && mediaContent[0].$.url) {
+                return validateImageUrl(mediaContent[0].$.url);
+            }
+            if (mediaContent[0].url) {
+                return validateImageUrl(mediaContent[0].url);
+            }
+        }
+        // Caso 3: mediaContent es un objeto simple con url
+        if (mediaContent.url) {
+            return validateImageUrl(mediaContent.url);
+        }
+    }
+
+    // media:thumbnail como alternativa
+    const mediaThumbnail = item['media:thumbnail'] || item.mediaThumbnail;
+    if (mediaThumbnail) {
+        if (mediaThumbnail.$ && mediaThumbnail.$.url) {
+            return validateImageUrl(mediaThumbnail.$.url);
+        }
+        if (Array.isArray(mediaThumbnail) && mediaThumbnail.length > 0) {
+            if (mediaThumbnail[0].$ && mediaThumbnail[0].$.url) {
+                return validateImageUrl(mediaThumbnail[0].$.url);
+            }
+        }
+    }
+
+    // Enclosure (algunos feeds)
+    const enclosure = item.enclosure;
+    if (enclosure && enclosure.url && enclosure.type && enclosure.type.includes('image')) {
+        return validateImageUrl(enclosure.url);
+    }
+
+    // 2. Open Graph tags (og:image) - Muy común en artículos modernos
+    const ogImageMatch = content?.match(/property=["']og:image["']\s+content=["']([^"']+)["']/i) ||
+        content?.match(/content=["']([^"']+)["']\s+property=["']og:image["']/i);
+    if (ogImageMatch && ogImageMatch[1]) {
+        const url = validateImageUrl(ogImageMatch[1]);
+        if (url) return url;
+    }
+
+    // 3. Twitter Card tags (twitter:image)
+    const twitterImageMatch = content?.match(/name=["']twitter:image(?::src)?["']\s+content=["']([^"']+)["']/i) ||
+        content?.match(/content=["']([^"']+)["']\s+name=["']twitter:image(?::src)?["']/i);
+    if (twitterImageMatch && twitterImageMatch[1]) {
+        const url = validateImageUrl(twitterImageMatch[1]);
+        if (url) return url;
+    }
+
+    // 4. Buscar en el contenido HTML - Mejorado con más formatos
+    const imgRegex = /<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp|avif|gif|svg))["'][^>]*>/gi;
     const matches = content?.matchAll(imgRegex);
 
     if (matches) {
@@ -127,14 +171,75 @@ function extractImage(content, category) {
             if (!url.includes('hubspot.com/cta') &&
                 !url.includes('tracking') &&
                 !url.includes('pixel') &&
+                !url.includes('analytics') &&
+                !url.includes('feedburner') &&
+                !url.includes('doubleclick') &&
                 url.startsWith('http')) {
-                return url;
+                const validUrl = validateImageUrl(url);
+                if (validUrl) return validUrl;
             }
         }
     }
 
-    // Si no hay imagen válida, usar una por categoría
-    return categoryImages[category] || categoryImages['sales'];
+    // 5. Buscar cualquier URL de imagen en el contenido (último recurso)
+    const urlRegex = /https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp|avif|gif)/gi;
+    const urlMatches = content?.matchAll(urlRegex);
+
+    if (urlMatches) {
+        for (const match of urlMatches) {
+            const url = match[0];
+            if (!url.includes('tracking') &&
+                !url.includes('pixel') &&
+                !url.includes('analytics')) {
+                const validUrl = validateImageUrl(url);
+                if (validUrl) return validUrl;
+            }
+        }
+    }
+
+    // 6. Fallback a imágenes por categoría (se manejará en el frontend)
+    return null;
+}
+
+/**
+ * Valida que una URL de imagen sea válida y accesible
+ */
+function validateImageUrl(url) {
+    if (!url) return null;
+
+    // Asegurar que sea una URL completa
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        return null;
+    }
+
+    // Filtrar URLs problemáticas conocidas
+    const blacklist = [
+        'feedburner.com',
+        'doubleclick.net',
+        'googleadservices.com',
+        'pixel',
+        'tracking',
+        'analytics',
+        '1x1',
+        'spacer.gif'
+    ];
+
+    const lowerUrl = url.toLowerCase();
+    if (blacklist.some(term => lowerUrl.includes(term))) {
+        return null;
+    }
+
+    // Verificar que tenga una extensión de imagen válida
+    const validExtensions = /\.(jpg|jpeg|png|webp|avif|gif)(\?|$)/i;
+    if (!validExtensions.test(url)) {
+        // Algunas URLs de imágenes no tienen extensión (ej: URLs de CDN dinámicas)
+        // Solo rechazar si claramente no es una imagen
+        if (!url.includes('/image') && !url.includes('/img') && !url.includes('/photo')) {
+            return null;
+        }
+    }
+
+    return url;
 }
 
 /**
@@ -160,8 +265,8 @@ function processArticle(item, source) {
             return null;
         }
 
-        // Extraer imagen (pasando el contenido original con HTML para encontrar imágenes)
-        const image = extractImage(content, source.category);
+        // Extraer imagen (pasando el item y el contenido)
+        const image = extractImage(item, content, source.category);
 
         // Determinar tiempo de lectura
         const wordCount = cleanContent.split(/\s+/).length;
@@ -196,8 +301,17 @@ async function fetchRSSFeed(source) {
     try {
         console.log(`📡 Obteniendo feed de ${source.name}...`);
 
-        // Crear parser y obtener feed directamente
-        const parser = new RSSParser();
+        // Crear parser con configuración para capturar campos de media
+        const parser = new RSSParser({
+            customFields: {
+                item: [
+                    ['media:content', 'mediaContent'],
+                    ['media:thumbnail', 'mediaThumbnail'],
+                    ['content:encoded', 'contentEncoded']
+                ]
+            }
+        });
+
         const feed = await parser.parseURL(source.url);
         const items = feed.items || [];
 
