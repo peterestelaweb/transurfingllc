@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | Transurfing LLC</title>
+    <meta name="description"
+        content="Noticias y estrategias de ventas high-ticket, appointment setting y closing para agencias B2B.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FF6B00",
+                        "background-dark": "#121212",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "heading": ["Archivo Black", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121212;
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #FF6B00, #ff8c33, #FF6B00);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        .blog-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(255, 107, 0, 0.15);
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .featured-badge {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(255, 107, 0, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 30px rgba(255, 107, 0, 0.4);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Category Gradients - Reliable visual content */
+        .category-gradient {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+            overflow: hidden;
+        }
+
+        .category-gradient-sales {
+            background: linear-gradient(135deg, #FF6B00 0%, #ff8c33 50%, #ffb366 100%);
+        }
+
+        .category-gradient-business {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%);
+        }
+
+        .category-gradient-growth {
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+        }
+
+        .category-gradient-closing {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
+        }
+
+        .category-gradient-setting {
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a78bfa 100%);
+        }
+
+        .category-gradient-mindset {
+            background: linear-gradient(135deg, #d946ef 0%, #e879f9 50%, #f0abfc 100%);
+        }
+
+        .category-icon {
+            font-size: 120px;
+            opacity: 0.15;
+            position: absolute;
+            color: white;
+            text-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .category-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: white;
+            z-index: 2;
+        }
+
+        /* Fix image aspect ratio and flicker */
+        .img-container {
+            position: relative;
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+
+        .img-container::before {
+            content: "";
+            display: block;
+            padding-top: 56.25%;
+            /* 16:9 */
+        }
+
+        .img-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
+        }
+
+        .img-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            color: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body class="text-white">
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-[#121212]/90 backdrop-blur-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index-es.html" class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-2xl text-primary">all_inclusive</span>
+                    <span class="text-xl font-heading tracking-tight uppercase">Transurfing LLC</span>
+                </a>
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="index-es.html#filosofia" class="text-sm text-gray-300 hover:text-primary">Filosofía</a>
+                    <a href="index-es.html#servicios" class="text-sm text-gray-300 hover:text-primary">Servicios</a>
+                    <a href="index-es.html#nosotros" class="text-sm text-gray-300 hover:text-primary">Nosotros</a>
+                    <a href="index-es.html#testimonios" class="text-sm text-gray-300 hover:text-primary">Testimonios</a>
+                    <a href="index-es.html#portal"
+                        class="text-sm font-bold text-primary hover:text-primary/80">Portal</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="pt-32 pb-16 text-center px-6">
+        <div class="max-w-4xl mx-auto">
+            <span
+                class="inline-block px-4 py-2 bg-primary/10 border border-primary/30 rounded-full text-primary text-sm font-bold mb-6 featured-badge">
+                📰 ACTUALIZADO AUTOMÁTICAMENTE
+            </span>
+            <h1 class="font-heading text-5xl md:text-6xl mb-6">
+                Noticias y Estrategias de <span class="gradient-text">Ventas High-Ticket</span>
+            </h1>
+            <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+                Contenido curado automáticamente de fuentes líderes en ventas, appointment setting y closing.
+            </p>
+        </div>
+    </header>
+
+    <!-- Last Update Time -->
+    <div class="text-center pb-8 px-6">
+        <p class="text-gray-500 text-sm" id="lastUpdate">Cargando artículos...</p>
+    </div>
+
+    <!-- Featured Article -->
+    <section class="py-8 px-6" id="featured-section">
+        <div class="max-w-4xl mx-auto">
+            <div id="featured-article"
+                class="hidden bg-gradient-to-br from-primary/20 to-transparent border border-primary/30 rounded-2xl p-8">
+                <!-- Featured article will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Filter -->
+    <section class="py-8 px-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex flex-wrap gap-3 justify-center">
+                <button
+                    class="category-btn px-4 py-2 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/80 transition-all"
+                    data-category="all">
+                    Todos
+                </button>
+                <button
+                    class="category-btn px-4 py-2 rounded-full bg-white/5 border border-white/20 text-gray-300 text-sm hover:border-primary/50 hover:text-white transition-all"
+                    data-category="sales">
+                    💰 Ventas
+                </button>
+                <button
+                    class="category-btn px-4 py-2 rounded-full bg-white/5 border border-white/20 text-gray-300 text-sm hover:border-primary/50 hover:text-white transition-all"
+                    data-category="setting">
+                    📞 Appointment Setting
+                </button>
+                <button
+                    class="category-btn px-4 py-2 rounded-full bg-white/5 border border-white/20 text-gray-300 text-sm hover:border-primary/50 hover:text-white transition-all"
+                    data-category="closing">
+                    🤝 Closing
+                </button>
+                <button
+                    class="category-btn px-4 py-2 rounded-full bg-white/5 border border-white/20 text-gray-300 text-sm hover:border-primary/50 hover:text-white transition-all"
+                    data-category="business">
+                    🏢 Business
+                </button>
+                <button
+                    class="category-btn px-4 py-2 rounded-full bg-white/5 border border-white/20 text-gray-300 text-sm hover:border-primary/50 hover:text-white transition-all"
+                    data-category="growth">
+                    📈 Growth
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Articles Grid -->
+    <section class="py-12 px-6">
+        <div class="max-w-6xl mx-auto">
+            <!-- Loading State -->
+            <div id="loading-state" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="skeleton h-64 rounded-2xl"></div>
+                <div class="skeleton h-64 rounded-2xl"></div>
+                <div class="skeleton h-64 rounded-2xl"></div>
+                <div class="skeleton h-64 rounded-2xl"></div>
+                <div class="skeleton h-64 rounded-2xl"></div>
+                <div class="skeleton h-64 rounded-2xl"></div>
+            </div>
+
+            <!-- Articles Grid -->
+            <div id="articles-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 hidden">
+                <!-- Articles will be loaded here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden text-center py-16">
+                <span class="text-6xl mb-4">📰</span>
+                <h3 class="text-xl font-semibold text-white mb-2">No hay artículos disponibles</h3>
+                <p class="text-gray-400">Vuelve más tarde o intenta otra categoría.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- RSS Sources Info -->
+    <section class="py-16 px-6 bg-[#0f0f0f]">
+        <div class="max-w-4xl mx-auto text-center">
+            <h3 class="text-2xl font-bold mb-4">📡 Fuentes Automáticas</h3>
+            <p class="text-gray-400 mb-6">
+                Este blog se actualiza automáticamente cada hora con contenido curado de fuentes líderes
+            </p>
+            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-2xl mb-2">Forbes</div>
+                    <p class="text-gray-500">Business & Sales</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-2xl mb-2">Entrepreneur</div>
+                    <p class="text-gray-500">Sales Strategies</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-2xl mb-2">Inc.</div>
+                    <p class="text-gray-500">Growth & Scale</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-2xl mb-2">Sales Hacker</div>
+                    <p class="text-gray-500">Sales Training</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-2xl mb-2">HBR</div>
+                    <p class="text-gray-500">Business Insights</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-2xl mb-2">Business Insider</div>
+                    <p class="text-gray-500">Sales & Revenue</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-6 border-t border-white/10">
+        <div class="max-w-6xl mx-auto text-center text-gray-500 text-sm">
+            <a href="index-es.html" class="hover:text-primary transition-colors">← Volver al inicio</a>
+            <p class="mt-4">© 2024 Transurfing LLC. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE = '/api';
+        let allArticles = [];
+        let currentCategory = 'all';
+
+        // Formatear fecha
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = now - date;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) return 'Hoy';
+            if (diffDays === 1) return 'Ayer';
+            if (diffDays < 7) return `Hace ${diffDays} días`;
+            return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        // Obtener clase de gradiente según categoría
+        function getCategoryGradientClass(category) {
+            const cat = category?.toLowerCase() || 'sales';
+            return `category-gradient category-gradient-${cat}`;
+        }
+
+        // Obtener ícono según categoría
+        function getCategoryIcon(category) {
+            const icons = {
+                'sales': '💰',
+                'setting': '📞',
+                'closing': '🤝',
+                'business': '🏢',
+                'growth': '📈',
+                'mindset': '🧠'
+            };
+            return icons[category?.toLowerCase()] || '💰';
+        }
+
+        // Obtener nombre de categoría formateado
+        function getCategoryName(category) {
+            const names = {
+                'sales': 'Ventas',
+                'setting': 'Appointment Setting',
+                'closing': 'Closing',
+                'business': 'Business',
+                'growth': 'Crecimiento',
+                'mindset': 'Mindset'
+            };
+            return names[category?.toLowerCase()] || 'Ventas';
+        }
+
+        function renderArticleCard(article, isFeatured = false) {
+            const date = formatDate(article.createdAt);
+            const gradientClass = getCategoryGradientClass(article.category);
+            const categoryIcon = getCategoryIcon(article.category);
+            const categoryName = getCategoryName(article.category);
+
+            if (isFeatured) {
+                return `
+                    <div class="flex flex-col md:flex-row gap-8 items-center fade-in">
+                        <div class="w-full md:w-1/2">
+                            <div class="${gradientClass} rounded-2xl shadow-2xl overflow-hidden border border-white/10 relative">
+                                <span class="category-icon">${categoryIcon}</span>
+                                <span class="category-badge">${categoryName}</span>
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <span class="inline-block px-3 py-1 bg-primary/20 text-primary text-xs font-semibold rounded-full mb-4">
+                                ${categoryIcon} ${categoryName}
+                            </span>
+                            <h2 class="text-3xl font-extrabold text-white mb-4 leading-tight">${article.title}</h2>
+                            <p class="text-gray-400 mb-6 text-lg leading-relaxed">${article.excerpt}</p>
+                            <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
+                                <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-base">calendar_today</span> ${date}</span>
+                                <span class="text-white/20">•</span>
+                                <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-base">schedule</span> ${article.readTime}</span>
+                                <span class="text-white/20">•</span>
+                                <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-base">source</span> ${article.source}</span>
+                            </div>
+                            <a href="${article.link}" target="_blank" class="inline-flex items-center gap-3 bg-primary text-white px-8 py-4 rounded-xl font-bold hover:bg-primary/80 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/20">
+                                Leer artículo completo <span class="material-symbols-outlined">arrow_forward</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <article class="blog-card flex flex-col bg-gradient-to-br from-white/5 to-transparent border border-white/5 rounded-2xl overflow-hidden fade-in" onclick="openArticle('${article.link}')">
+                    <div class="${gradientClass} relative">
+                        <span class="category-icon">${categoryIcon}</span>
+                        <span class="category-badge">${categoryName}</span>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col">
+                        <div class="mb-3">
+                            <span class="inline-block px-2.5 py-1 bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-wider rounded-full">
+                                ${categoryIcon} ${categoryName}
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-3 line-clamp-2 leading-snug hover:text-primary transition-colors">${article.title}</h3>
+                        <p class="text-gray-400 text-sm mb-6 line-clamp-3 leading-relaxed flex-1">${article.excerpt}</p>
+                        <div class="flex items-center justify-between mt-auto pt-4 border-t border-white/5 text-[11px] text-gray-500 font-medium">
+                            <div class="flex items-center gap-3">
+                                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">calendar_today</span> ${date}</span>
+                                <span>•</span>
+                                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> ${article.readTime}</span>
+                            </div>
+                            <span class="text-primary/70">${article.source}</span>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
+
+        // Cargar artículos desde la API
+        async function loadArticles(category = 'all') {
+            const grid = document.getElementById('articles-grid');
+            const loading = document.getElementById('loading-state');
+            const empty = document.getElementById('empty-state');
+            const featured = document.getElementById('featured-article');
+            const lastUpdate = document.getElementById('lastUpdate');
+
+            // Mostrar loading
+            loading.classList.remove('hidden');
+            grid.classList.add('hidden');
+            empty.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${API_BASE}/blog?category=${category}&limit=12`);
+                const data = await response.json();
+
+                allArticles = data.articles || [];
+                const featuredArticle = allArticles[0];
+
+                // Dar un pequeño respiro para el skeleton antes de mostrar contenido
+                setTimeout(() => {
+                    // Ocultar loading
+                    loading.classList.add('hidden');
+
+                    if (allArticles.length === 0) {
+                        empty.classList.remove('hidden');
+                        lastUpdate.textContent = 'No hay artículos disponibles';
+                        return;
+                    }
+
+                    // Mostrar featured
+                    if (featuredArticle) {
+                        featured.innerHTML = renderArticleCard(featuredArticle, true);
+                        featured.classList.remove('hidden');
+                    }
+
+                    // Mostrar grid con artículos (sin el featured)
+                    const regularArticles = allArticles.slice(1);
+                    if (regularArticles.length > 0) {
+                        grid.innerHTML = regularArticles.map(article => renderArticleCard(article)).join('');
+                        grid.classList.remove('hidden');
+                    }
+
+                    // Actualizar fecha
+                    lastUpdate.textContent = `Actualizado: ${new Date().toLocaleTimeString('es-ES')}`;
+                }, 300);
+
+            } catch (error) {
+                console.error('Error cargando artículos:', error);
+                loading.classList.add('hidden');
+                empty.classList.remove('hidden');
+                lastUpdate.textContent = 'Error al cargar artículos';
+            }
+        }
+
+        // Filtros de categoría
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Actualizar estado visual
+                document.querySelectorAll('.category-btn').forEach(b => {
+                    b.classList.remove('bg-primary', 'text-white');
+                    b.classList.add('bg-white/5', 'text-gray-300');
+                });
+                btn.classList.remove('bg-white/5', 'text-gray-300');
+                btn.classList.add('bg-primary', 'text-white');
+
+                // Cargar artículos de la categoría
+                currentCategory = btn.dataset.category;
+                loadArticles(currentCategory);
+            });
+        });
+
+        // Cargar artículos al iniciar
+        loadArticles();
+
+        // Función para abrir artículo
+        function openArticle(url) {
+            window.open(url, '_blank');
+        }
+
+        console.log('%c📰 Blog cargado - Transurfing LLC', 'color: #FF6B00; font-size: 14px; font-weight: bold;');
+    </script>
+</body>
+
+</html>
