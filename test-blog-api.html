@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Blog API</title>
+    <style>body { font-family: sans-serif; padding: 20px; background: #121212; color: white; }
+    .article { background: #1a1a1a; padding: 15px; margin: 10px 0; border-radius: 8px; }
+    h2 { color: #FF6B00; }</style>
+</head>
+<body>
+    <h1>🧪 Test Blog API</h1>
+    <div id="status">Cargando...</div>
+    <div id="articles"></div>
+    <script>
+        fetch('/api/blog?limit=6')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('status').innerHTML = '<span style="color: #22c55e">✅ API funcionando - ' + data.total + ' artículos</span>';
+                document.getElementById('articles').innerHTML = data.articles.map(a => `
+                    <div class="article">
+                        <strong>${a.title}</strong><br>
+                        <small>${a.source} - ${a.category}</small><br>
+                        <a href="${a.link}" target="_blank" style="color: #FF6B00">Leer más →</a>
+                    </div>
+                `).join('');
+            })
+            .catch(e => {
+                document.getElementById('status').innerHTML = '<span style="color: #ef4444">❌ Error: ' + e.message + '</span>';
+            });
+    </script>
+</body>
+</html>

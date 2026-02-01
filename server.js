@@ -203,6 +203,58 @@ app.get('/api/contacts', async (req, res) => {
     }
 });
 
+// Blog API endpoint - Obtener artículos del blog
+app.get('/api/blog', async (req, res) => {
+    try {
+        const { category, limit = 12 } = req.query;
+
+        if (!db) {
+            return res.status(503).json({ error: 'Firebase no configurado' });
+        }
+
+        // Obtener artículos ordenados por fecha (sin filtro compuesto para evitar índice)
+        let query = db.collection('blog_articles')
+            .orderBy('createdAt', 'desc')
+            .limit(50); // Obtener más para filtrar después
+
+        const snapshot = await query.get();
+
+        let articles = [];
+        snapshot.forEach(doc => {
+            const article = {
+                id: doc.id,
+                ...doc.data()
+            };
+            // Filtrar por isActive
+            if (article.isActive === true || article.isActive === undefined) {
+                articles.push(article);
+            }
+        });
+
+        // Filtrar por categoría si se especifica
+        if (category && category !== 'all') {
+            articles = articles.filter(a => a.category === category);
+        }
+
+        // Aplicar límite
+        articles = articles.slice(0, parseInt(limit));
+
+        res.json({
+            success: true,
+            articles,
+            total: articles.length,
+            category: category || 'all'
+        });
+
+    } catch (error) {
+        console.error('Error obteniendo artículos:', error);
+        res.status(500).json({
+            error: 'Error obteniendo artículos',
+            details: error.message
+        });
+    }
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({

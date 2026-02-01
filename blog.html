@@ -44,10 +44,27 @@
         }
         .blog-card {
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         .blog-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 40px rgba(255, 107, 0.2);
+        }
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .featured-badge {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 0, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(255, 107, 0, 0.5); }
         }
     </style>
 </head>
@@ -56,14 +73,16 @@
     <nav class="fixed top-0 left-0 right-0 z-50 bg-[#121212]/90 backdrop-blur-lg border-b border-white/10">
         <div class="max-w-7xl mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
-                <a href="index.html" class="flex items-center gap-3">
+                <a href="index-es.html" class="flex items-center gap-3">
                     <span class="material-symbols-outlined text-2xl text-primary">all_inclusive</span>
                     <span class="text-xl font-heading tracking-tight uppercase">Transurfing LLC</span>
                 </a>
                 <div class="hidden md:flex items-center gap-6">
-                    <a href="index.html#filosofia" class="text-sm text-gray-300 hover:text-primary">Filosofía</a>
-                    <a href="index.html#servicios" class="text-sm text-gray-300 hover:text-primary">Servicios</a>
-                    <a href="index.html#portal" class="text-sm font-bold text-primary hover:text-primary/80">Portal</a>
+                    <a href="index-es.html#filosofia" class="text-sm text-gray-300 hover:text-primary">Filosofía</a>
+                    <a href="index-es.html#servicios" class="text-sm text-gray-300 hover:text-primary">Servicios</a>
+                    <a href="index-es.html#nosotros" class="text-sm text-gray-300 hover:text-primary">Nosotros</a>
+                    <a href="index-es.html#testimonios" class="text-sm text-gray-300 hover:text-primary">Testimonios</a>
+                    <a href="index-es.html#portal" class="text-sm font-bold text-primary hover:text-primary/80">Portal</a>
                 </div>
             </div>
         </div>
@@ -72,30 +91,28 @@
     <!-- Header -->
     <header class="pt-32 pb-16 text-center px-6">
         <div class="max-w-4xl mx-auto">
-            <span class="inline-block px-4 py-2 bg-primary/10 border border-primary/30 rounded-full text-primary text-sm font-bold mb-6">
-                📰 BLOG
+            <span class="inline-block px-4 py-2 bg-primary/10 border border-primary/30 rounded-full text-primary text-sm font-bold mb-6 featured-badge">
+                📰 ACTUALIZADO AUTOMÁTICAMENTE
             </span>
             <h1 class="font-heading text-5xl md:text-6xl mb-6">
                 Noticias y Estrategias de <span class="gradient-text">Ventas High-Ticket</span>
             </h1>
             <p class="text-gray-400 text-lg max-w-2xl mx-auto">
-                Contenido curado de fuentes líderes en ventas, appointment setting y closing para agencias B2B.
+                Contenido curado automáticamente de fuentes líderes en ventas, appointment setting y closing.
             </p>
         </div>
     </header>
 
+    <!-- Last Update Time -->
+    <div class="text-center pb-8 px-6">
+        <p class="text-gray-500 text-sm" id="lastUpdate">Cargando artículos...</p>
+    </div>
+
     <!-- Featured Article -->
-    <section class="py-12 px-6">
+    <section class="py-8 px-6" id="featured-section">
         <div class="max-w-4xl mx-auto">
-            <div class="bg-gradient-to-br from-primary/20 to-transparent border border-primary/30 rounded-2xl p-8 mb-12">
-                <span class="text-xs font-bold text-primary uppercase tracking-wider">⭐ DESTACADO</span>
-                <h2 class="text-2xl md:text-3xl font-bold mt-4 mb-4">Cómo Reducir la Importancia en las Ventas High-Ticket</h2>
-                <p class="text-gray-300 mb-6">Descubre el principio metafísico que separa a los closers exitosos de los que siempre están persiguiendo deals. Cuando la importancia disminuye, la resistencia desaparece.</p>
-                <div class="flex items-center gap-4 text-sm text-gray-400">
-                    <span>📅 5 min lectura</span>
-                    <span>•</span>
-                    <span>🎯 Nivel: Intermedio</span>
-                </div>
+            <div id="featured-article" class="hidden bg-gradient-to-br from-primary/20 to-transparent border border-primary/30 rounded-2xl p-8">
+                <!-- Featured article will be loaded here -->
             </div>
         </div>
     </section>
@@ -116,8 +133,11 @@
                 <button class="category-btn px-4 py-2 rounded-full bg-white/5 border border-white/20 text-gray-300 text-sm hover:border-primary/50 hover:text-white transition-all" data-category="closing">
                     🤝 Closing
                 </button>
-                <button class="category-btn px-4 py-2 rounded-full bg-white/5 border border-white/20 text-gray-300 text-sm hover:border-primary/50 hover:text-white transition-all" data-category="mindset">
-                    🧠 Mindset
+                <button class="category-btn px-4 py-2 rounded-full bg-white/5 border border-white/20 text-gray-300 text-sm hover:border-primary/50 hover:text-white transition-all" data-category="business">
+                    🏢 Business
+                </button>
+                <button class="category-btn px-4 py-2 rounded-full bg-white/5 border border-white/20 text-gray-300 text-sm hover:border-primary/50 hover:text-white transition-all" data-category="growth">
+                    📈 Growth
                 </button>
             </div>
         </div>
@@ -126,8 +146,26 @@
     <!-- Articles Grid -->
     <section class="py-12 px-6">
         <div class="max-w-6xl mx-auto">
-            <div id="articles-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Loading State -->
+            <div id="loading-state" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="skeleton h-64 rounded-2xl"></div>
+                <div class="skeleton h-64 rounded-2xl"></div>
+                <div class="skeleton h-64 rounded-2xl"></div>
+                <div class="skeleton h-64 rounded-2xl"></div>
+                <div class="skeleton h-64 rounded-2xl"></div>
+                <div class="skeleton h-64 rounded-2xl"></div>
+            </div>
+
+            <!-- Articles Grid -->
+            <div id="articles-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 hidden">
                 <!-- Articles will be loaded here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden text-center py-16">
+                <span class="text-6xl mb-4">📰</span>
+                <h3 class="text-xl font-semibold text-white mb-2">No hay artículos disponibles</h3>
+                <p class="text-gray-400">Vuelve más tarde o intenta otra categoría.</p>
             </div>
         </div>
     </section>
@@ -137,12 +175,12 @@
         <div class="max-w-4xl mx-auto text-center">
             <h3 class="text-2xl font-bold mb-4">📡 Fuentes Automáticas</h3>
             <p class="text-gray-400 mb-6">
-                Este blog se actualiza automáticamente con contenido de fuentes líderes en ventas y business
+                Este blog se actualiza automáticamente cada hora con contenido curado de fuentes líderes
             </p>
             <div class="grid md:grid-cols-3 gap-4 text-sm">
                 <div class="bg-white/5 p-4 rounded-xl border border-white/10">
                     <div class="text-2xl mb-2">Forbes</div>
-                    <p class="text-gray-500">Sales & Business</p>
+                    <p class="text-gray-500">Business & Sales</p>
                 </div>
                 <div class="bg-white/5 p-4 rounded-xl border border-white/10">
                     <div class="text-2xl mb-2">Entrepreneur</div>
@@ -152,6 +190,18 @@
                     <div class="text-2xl mb-2">Inc.</div>
                     <p class="text-gray-500">Growth & Scale</p>
                 </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-2xl mb-2">Sales Hacker</div>
+                    <p class="text-gray-500">Sales Training</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-2xl mb-2">HBR</div>
+                    <p class="text-gray-500">Business Insights</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="text-2xl mb-2">Business Insider</div>
+                    <p class="text-gray-500">Sales & Revenue</p>
+                </div>
             </div>
         </div>
     </section>
@@ -159,112 +209,158 @@
     <!-- Footer -->
     <footer class="py-12 px-6 border-t border-white/10">
         <div class="max-w-6xl mx-auto text-center text-gray-500 text-sm">
-            <a href="index.html" class="hover:text-primary transition-colors">← Volver al inicio</a>
+            <a href="index-es.html" class="hover:text-primary transition-colors">← Volver al inicio</a>
             <p class="mt-4">© 2024 Transurfing LLC. Todos los derechos reservados.</p>
         </div>
     </footer>
 
     <script>
-        // Sample articles data (será reemplazado por RSS feeds)
-        const articles = [
-            {
-                id: 1,
-                title: "5 Técnicas de Closing que los Top 1% Usan",
-                excerpt: "Descubre las técnicas de closing que separan a los elite de los promedio. No se trata de ser más agresivo, se trata de ser más efectivo.",
-                category: "closing",
-                image: "https://images.unsplash.com/photo-1553484771-371a5e0c798b?w=800",
-                date: "2024-01-30",
-                readTime: "7 min",
-                source: "Adaptado de técnicas probadas en Acquisition.com"
-            },
-            {
-                id: 2,
-                title: "Cómo Calificar Leads que Realmente Quieren Comprar",
-                excerpt: "La clave no es más cantidad, es mejor calidad. Aprende a identificar los señales de un lead cualificado para tu servicio high-ticket.",
-                category: "setting",
-                image: "https://images.unsplash.com/photo-1553877522-4ac694a47edc?w=800",
-                date: "2024-01-29",
-                readTime: "5 min",
-                source: "Basado en metodologías de Gym Launch"
-            },
-            {
-                id: 3,
-                title: "El Mentalidad del Closer: De Cazador a Selector",
-                excerpt: "Transforma tu mentalidad de 'cazar' clientes a 'seleccionar' la línea de tiempo donde el cierre ya existe. Este cambio de paradigma lo cambia todo.",
-                category: "mindset",
-                image: "https://images.unsplash.com/photo-1559137140-c97e-62b426439b?w=800",
-                date: "2024-01-28",
-                readTime: "6 min",
-                source: "Inspirado en principles de Reality Transurfing"
-            },
-            {
-                id: 4,
-                title: "Scripts de Cold Call que Realmente Funcionan en 2024",
-                excerpt: "Los scripts antiguos ya no sirven. Descubre las estructuras de cold call que generan conversaciones en el mercado actual.",
-                category: "sales",
-                image: "https://images.unsplash.com/photo-1556761175-5973-eee8416?w=800",
-                date: "2024-01-27",
-                readTime: "8 min",
-                source: "Actualizado con tendencias de Cardone University"
-            },
-            {
-                id: 5,
-                title: "Objection Handling: La Arma Secreta de los Closers",
-                excerpt: "Las objeciones no son rechazos, son preguntas disfrazadas. Aprende a transformar cada objeción en un paso más hacia el cierre.",
-                category: "closing",
-                image: "https://images.unsplash.com/photo-1542744173-8f7d549518d7?w=800",
-                date: "2024-01-26",
-                readTime: "9 min",
-                source: "Técnicas de los mejores closers del mercado"
-            },
-            {
-                id: 6,
-                title: "Cómo Escalar tu Agencia sin Arder Calidad",
-                excerpt: "El equilibrio perfecto entre crecer y mantener la calidad. Descubre cómo entrenar setters nuevos sin sacrificar los estándares que te hicieron exitoso.",
-                category: "sales",
-                image: "https://images.unsplash.com/photo-1507238691880-fea43f3391ce?w=800",
-                date: "2024-01-25",
-                readTime: "6 min",
-                source: "Casos reales de escalamiento exitoso"
-            }
-        ];
+        const API_BASE = '/api';
+        let allArticles = [];
+        let currentCategory = 'all';
 
-        // Render articles
-        function renderArticles(category = 'all') {
-            const grid = document.getElementById('articles-grid');
-            const filtered = category === 'all' ? articles : articles.filter(a => a.category === category);
+        // Formatear fecha
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = now - date;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-            grid.innerHTML = filtered.map((article, index) => `
-                <article class="blog-card bg-gradient-to-br from-white/5 to-transparent border border-white/5 rounded-2xl overflow-hidden">
-                    <a href="index.html#portal" class="block">
-                        <div class="aspect-video bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                            <span class="text-4xl">📰</span>
+            if (diffDays === 0) return 'Hoy';
+            if (diffDays === 1) return 'Ayer';
+            if (diffDays < 7) return `Hace ${diffDays} días`;
+            return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        // Generar imagen automática si no hay
+        function getAutoImage(category, title) {
+            const images = {
+                'sales': 'https://images.unsplash.com/photo-1556761175-5973-eee8416?w=800',
+                'setting': 'https://images.unsplash.com/photo-1553877522-4ac694a47edc?w=800',
+                'closing': 'https://images.unsplash.com/photo-1542744173-8f7d549518d7?w=800',
+                'business': 'https://images.unsplash.com/photo-15070022139046-60dd975c5cd9?w=800',
+                'growth': 'https://images.unsplash.com/photo-1460925859341-9d8c6a5a5d8?w=800'
+            };
+
+            return images[category] || images['sales'];
+        }
+
+        // Renderizar un artículo
+        function renderArticleCard(article, isFeatured = false) {
+            const image = article.image || getAutoImage(article.category, article.title);
+            const date = formatDate(article.createdAt);
+
+            if (isFeatured) {
+                return `
+                    <div class="flex flex-col md:flex-row gap-6 items-center">
+                        <div class="w-full md:w-1/2">
+                            <img src="${image}" alt="" class="w-full h-48 md:h-56 object-cover rounded-xl" onerror="this.src='${getAutoImage(article.category, article.title)}'">
                         </div>
-                        <div class="p-6">
-                            <span class="inline-block px-2 py-1 bg-primary/20 text-primary text-xs font-semibold rounded-full mb-3">
+                        <div>
+                            <span class="inline-block px-3 py-1 bg-primary/20 text-primary text-xs font-semibold rounded-full mb-3">
                                 ${article.category === 'closing' ? '🤝' : article.category === 'setting' ? '📞' : article.category === 'mindset' ? '🧠' : '💰'}
                                 ${article.category.charAt(0).toUpperCase() + article.category.slice(1)}
                             </span>
-                            <h3 class="text-lg font-bold text-white mb-2 line-clamp-2">${article.title}</h3>
-                            <p class="text-gray-400 text-sm mb-4 line-clamp-2">${article.excerpt}</p>
-                            <div class="flex items-center gap-4 text-xs text-gray-500">
-                                <span>📅 ${article.date}</span>
+                            <h2 class="text-2xl font-bold text-white mb-3 line-clamp-2">${article.title}</h2>
+                            <p class="text-gray-400 mb-4">${article.excerpt}</p>
+                            <div class="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                                <span>📅 ${date}</span>
                                 <span>•</span>
                                 <span>⏱️ ${article.readTime}</span>
+                                <span>•</span>
+                                <span>📰 ${article.source}</span>
                             </div>
-                            <div class="mt-4 pt-4 border-t border-white/10">
-                                <p class="text-xs text-primary/80">Fuente: ${article.source}</p>
-                            </div>
+                            <a href="${article.link}" target="_blank" class="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/80 transition-colors">
+                                Leer artículo completo →
+                            </a>
                         </div>
-                    </a>
+                    </div>
+                `;
+            }
+
+            return `
+                <article class="blog-card bg-gradient-to-br from-white/5 to-transparent border border-white/5 rounded-2xl overflow-hidden" onclick="openArticle('${article.link}')">
+                    <div class="aspect-video bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center relative">
+                        <img src="${image}" alt="${article.title}" class="w-full h-full object-cover" onerror="this.src='${getAutoImage(article.category, article.title)}'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                    </div>
+                    <div class="p-6">
+                        <span class="inline-block px-2 py-1 bg-primary/20 text-primary text-xs font-semibold rounded-full mb-3">
+                            ${article.category === 'closing' ? '🤝' : article.category === 'setting' ? '📞' : article.category === 'mindset' ? '🧠' : '💰'}
+                            ${article.category.charAt(0).toUpperCase() + article.category.slice(1)}
+                        </span>
+                        <h3 class="text-lg font-bold text-white mb-2 line-clamp-2">${article.title}</h3>
+                        <p class="text-gray-400 text-sm mb-4 line-clamp-3">${article.excerpt}</p>
+                        <div class="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                            <span>📅 ${date}</span>
+                            <span>•</span>
+                            <span>⏱️ ${article.readTime}</span>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-white/10">
+                            <p class="text-xs text-primary/80">Fuente: ${article.source}</p>
+                        </div>
+                    </div>
                 </article>
-            `).join('');
+            `;
         }
 
-        // Category filter functionality
+        // Cargar artículos desde la API
+        async function loadArticles(category = 'all') {
+            const grid = document.getElementById('articles-grid');
+            const loading = document.getElementById('loading-state');
+            const empty = document.getElementById('empty-state');
+            const featured = document.getElementById('featured-article');
+            const lastUpdate = document.getElementById('lastUpdate');
+
+            // Mostrar loading
+            loading.classList.remove('hidden');
+            grid.classList.add('hidden');
+            empty.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${API_BASE}/blog?category=${category}&limit=12`);
+                const data = await response.json();
+
+                allArticles = data.articles || [];
+                const featuredArticle = allArticles[0];
+
+                // Ocultar loading
+                loading.classList.add('hidden');
+
+                if (allArticles.length === 0) {
+                    empty.classList.remove('hidden');
+                    lastUpdate.textContent = 'No hay artículos disponibles';
+                    return;
+                }
+
+                // Mostrar featured
+                if (featuredArticle) {
+                    featured.innerHTML = renderArticleCard(featuredArticle, true);
+                    featured.classList.remove('hidden');
+                }
+
+                // Mostrar grid con artículos (sin el featured)
+                const regularArticles = allArticles.slice(1);
+                if (regularArticles.length > 0) {
+                    grid.innerHTML = regularArticles.map(article => renderArticleCard(article)).join('');
+                    grid.classList.remove('hidden');
+                }
+
+                // Actualizar fecha
+                lastUpdate.textContent = `Actualizado: ${new Date().toLocaleTimeString('es-ES')}`;
+
+            } catch (error) {
+                console.error('Error cargando artículos:', error);
+                loading.classList.add('hidden');
+                empty.classList.remove('hidden');
+                lastUpdate.textContent = 'Error al cargar artículos';
+            }
+        }
+
+        // Filtros de categoría
         document.querySelectorAll('.category-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                // Update active state
+                // Actualizar estado visual
                 document.querySelectorAll('.category-btn').forEach(b => {
                     b.classList.remove('bg-primary', 'text-white');
                     b.classList.add('bg-white/5', 'text-gray-300');
@@ -272,14 +368,19 @@
                 btn.classList.remove('bg-white/5', 'text-gray-300');
                 btn.classList.add('bg-primary', 'text-white');
 
-                // Filter articles
-                const category = btn.dataset.category;
-                renderArticles(category);
+                // Cargar artículos de la categoría
+                currentCategory = btn.dataset.category;
+                loadArticles(currentCategory);
             });
         });
 
-        // Initial render
-        renderArticles();
+        // Cargar artículos al iniciar
+        loadArticles();
+
+        // Función para abrir artículo
+        function openArticle(url) {
+            window.open(url, '_blank');
+        }
 
         console.log('%c📰 Blog cargado - Transurfing LLC', 'color: #FF6B00; font-size: 14px; font-weight: bold;');
     </script>
